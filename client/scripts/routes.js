@@ -6,7 +6,7 @@ import chatsTemplateUrl from '../templates/chats.html';
 
 import tabsTemplateUrl from '../templates/tabs.html';
 
-
+import chatTemplateUrl from '../templates/chat.html';
 
 export default class RoutesConfig extends Config {
 
@@ -24,18 +24,21 @@ export default class RoutesConfig extends Config {
 
       })
 
-      .state('tab.chats', {
+      .state('tab.chat', {
 
-        url: '/chats',
+  url: '/chats/:chatId',
 
-        views: {
+  views: {
 
-          'tab-chats': {
-            templateUrl: chatsTemplateUrl,
-            controller: 'ChatsCtrl as chats'
-          }
+    'tab-chats': {
 
-        }
+      templateUrl: chatTemplateUrl,
+
+      controller: 'ChatCtrl as chat'
+
+    }
+
+  }
 
       });
 

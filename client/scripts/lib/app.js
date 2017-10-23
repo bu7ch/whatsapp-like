@@ -8,6 +8,8 @@ import 'angular-sanitize';
 
 import 'angular-ui-router';
 
+import 'angular-moment';
+
 import 'ionic-scripts';
 
 import Angular from 'angular';
@@ -21,7 +23,9 @@ import { Meteor } from 'meteor/meteor';
 // Modules
 import RoutesConfig from '../routes';
 import CalendarFilter from '../filters/calendar.filter';
+import ChatCtrl from '../controllers/chat.controller';
 import ChatsCtrl from '../controllers/chats.controller';
+import InputDirective from '../directives/input.directive';
 
 const App = 'Whatsapp';
 
@@ -32,13 +36,15 @@ const App = 'Whatsapp';
 Angular.module(App, [
 
   'angular-meteor',
-
+  'angularMoment',
   'ionic'
 
 ]);
 
 new Loader(App)
   .load(ChatsCtrl)
+  .load(ChatCtrl)
+  .load(InputDirective)
   .load(CalendarFilter)
   .load(RoutesConfig);
 
