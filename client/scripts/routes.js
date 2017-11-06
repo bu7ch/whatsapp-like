@@ -1,14 +1,29 @@
-import { Config } from 'angular-ecmascript/module-helpers';
+import { _ } from 'meteor/underscore';
 
-
+import { Config, Runner } from 'angular-ecmascript/module-helpers';
 
 import chatsTemplateUrl from '../templates/chats.html';
+
+import confirmationTemplateUrl from '../templates/confirmation.html';
+
+import loginTemplateUrl from '../templates/login.html';
+
+import profileTemplateUrl from '../templates/profile.html';
 
 import tabsTemplateUrl from '../templates/tabs.html';
 
 import chatTemplateUrl from '../templates/chat.html';
 
-export default class RoutesConfig extends Config {
+import settingsTemplateUrl from '../templates/settings.html';
+
+class RoutesConfig extends Config {
+    constructor() {
+
+  super(...arguments);
+
+  this.isAuthorized = ['$auth', this.isAuthorized.bind(this)];
+
+}
 
   configure() {
 
@@ -20,7 +35,13 @@ export default class RoutesConfig extends Config {
 
         abstract: true,
 
-        templateUrl: tabsTemplateUrl
+        templateUrl: tabsTemplateUrl,
+
+        resolve: {
+
+          user: this.isAuthorized
+
+        }
 
       })
 
@@ -40,6 +61,57 @@ export default class RoutesConfig extends Config {
 
   }
 
+})
+
+.state('login', {
+
+url: '/login',
+
+templateUrl: loginTemplateUrl,
+
+controller: 'LoginCtrl as logger'
+
+})
+
+.state('confirmation', {
+
+url: '/confirmation/:phone',
+
+templateUrl: confirmationTemplateUrl,
+
+controller: 'ConfirmationCtrl as confirmation'
+
+})
+
+.state('profile', {
+
+url: '/profile',
+
+templateUrl: profileTemplateUrl,
+
+controller: 'ProfileCtrl as profile',
+resolve: {
+
+  user: this.isAuthorized
+
+}
+})
+
+.state('tab.settings', {
+
+  url: '/settings',
+
+  views: {
+
+    'tab-settings': {
+
+      templateUrl: settingsTemplateUrl,
+
+      controller: 'SettingsCtrl as settings',
+
+    }
+
+  }
       });
 
 
@@ -47,9 +119,44 @@ export default class RoutesConfig extends Config {
     this.$urlRouterProvider.otherwise('tab/chats');
 
   }
+  isAuthorized($auth) {
+
+  return $auth.awaitUser();
+
+}
+
+}
+
+RoutesConfig.$inject = ['$stateProvider', '$urlRouterProvider'];
+
+
+
+class RoutesRunner extends Runner {
+
+  run() {
+
+    this.$rootScope.$on('$stateChangeError', (...args) => {
+
+      const err = _.last(args);
+
+
+
+      if (err === 'AUTH_REQUIRED') {
+
+        this.$state.go('login');
+
+      }
+
+    });
+
+  }
 
 }
 
 
 
-RoutesConfig.$inject = ['$stateProvider', '$urlRouterProvider'];
+RoutesRunner.$inject = ['$rootScope', '$state'];
+
+
+
+export default [RoutesConfig, RoutesRunner];
